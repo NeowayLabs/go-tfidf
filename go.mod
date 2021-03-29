@@ -1,1 +1,3 @@
-module https://github.com/NeowayLabs/tf-idf
+module https: //github.com/NeowayLabs/tfidf
+
+go 1.13
