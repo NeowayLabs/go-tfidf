@@ -7,6 +7,32 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestCalculateSimilaritiesWhenVectorsHaveDifferentLength(t *testing.T) {
+	inputA := []float64{1.0, 2.0, 3.0, 1.0, 1.0}
+	inputB := [][]float64{
+		[]float64{1.0, 2.0, 3.0, 1.0},
+	}
+	expected := []float64{}
+
+	actual, err := similarity.CalculateSimilarities(inputA, inputB, "Cosine")
+
+	assert.Equal(t, expected, actual)
+	assert.NotNil(t, err)
+}
+
+func TestCalculateSimilarities(t *testing.T) {
+	inputA := []float64{1.0, 2.0, 3.0, 1.0, 1.0}
+	inputB := [][]float64{
+		[]float64{1.0, 2.0, 3.0, 1.0, 1.0},
+	}
+	expected := []float64{1.0}
+
+	actual, err := similarity.CalculateSimilarities(inputA, inputB, "Cosine")
+
+	assert.Equal(t, expected, actual)
+	assert.Nil(t, err)
+}
+
 func TestVectorMagnitude(t *testing.T) {
 	input := []float64{1.0, 2.0, 3.0, 1.0, 1.0}
 	expected := 4.0

@@ -1,8 +1,11 @@
 package go_tfidf
 
 import (
+	"errors"
 	"math"
 	"strings"
+
+	"github.com/NeowayLabs/go-tfidf/helper"
 )
 
 type TfIdf struct {
@@ -21,6 +24,7 @@ func (ti *TfIdf) AddDocuments(documents []string) {
 
 		ti.DocumentsNormTermFrequency = append(ti.DocumentsNormTermFrequency, normalizedTermFrequency(docTerms))
 	}
+	ti.DocumentsTerms = helper.RemoveDuplicates(ti.DocumentsTerms)
 }
 
 func normalizedTermFrequency(terms []string) map[string]float64 {
@@ -35,37 +39,39 @@ func normalizedTermFrequency(terms []string) map[string]float64 {
 }
 
 func (ti *TfIdf) CalculateDocumentsIdf() {
+
 	for _, term := range ti.DocumentsTerms {
-		ti.DocumentsInverseFrequency[term] = inverseDocumentFrequency(term, ti.Documents)
+		ti.DocumentsInverseFrequency[term] = inverseDocumentFrequency(term, ti.Documents, ti.DocumentSeparator)
 	}
 }
 
-func inverseDocumentFrequency(term string, documents []string) float64 {
+func inverseDocumentFrequency(term string, documents []string, separator string) float64 {
 	countTermsInDocuments := 0
 	for _, doc := range documents {
-		if strings.Contains(strings.ToLower(doc), strings.ToLower(term)) {
+		docTerms := strings.Split(strings.ToLower(doc), separator)
+		if helper.StringArrayContainsWord(docTerms, strings.ToLower(term)) {
 			countTermsInDocuments++
 		}
 	}
 
 	if countTermsInDocuments > 0 {
-		return 1.0 + math.Log(float64(len(documents)/countTermsInDocuments))
+		return 1.0 + math.Log(float64(len(documents))/float64(countTermsInDocuments))
 	}
 
 	return 1.0
 
 }
 
-func (ti *TfIdf) CalculateQueryTfIdfForEveryDocument(query string) map[int][]float64 {
+func (ti *TfIdf) CalculateQueryTfIdfForEveryDocument(query string) ([][]float64, error) {
 	queryTerms := strings.Split(query, ti.DocumentSeparator)
-	termsTfIdfs := make(map[int][]float64, 0)
+	termsTfIdfs := make([][]float64, 0)
 
 	if len(queryTerms) < 1 {
-		return termsTfIdfs
+		return termsTfIdfs, errors.New("Query must have at least one term")
 	}
 
 	for docIdx, docNormTf := range ti.DocumentsNormTermFrequency {
-		termsTfIdfs[docIdx] = make([]float64, 0)
+		termsTfIdfs = append(termsTfIdfs, make([]float64, 0))
 		for _, term := range queryTerms {
 			tf := 0.0
 			idf := 0.0
@@ -79,12 +85,12 @@ func (ti *TfIdf) CalculateQueryTfIdfForEveryDocument(query string) map[int][]flo
 		}
 	}
 
-	return termsTfIdfs
+	return termsTfIdfs, nil
 }
 
-func (ti *TfIdf) CalculateQueryTfIdf(query string) []float64 {
+func CalculateQueryTfIdf(query string, separator string) []float64 {
 	docs := []string{query}
-	queryTerms := strings.Split(query, ti.DocumentSeparator)
+	queryTerms := strings.Split(query, separator)
 	queryTfIdf := make([]float64, 0)
 
 	if len(queryTerms) < 1 {
@@ -95,7 +101,7 @@ func (ti *TfIdf) CalculateQueryTfIdf(query string) []float64 {
 
 	for _, term := range queryTerms {
 		tf := termFrequencies[term]
-		idf := inverseDocumentFrequency(term, docs)
+		idf := inverseDocumentFrequency(term, docs, separator)
 		queryTfIdf = append(queryTfIdf, tf*idf)
 	}
 
@@ -105,14 +111,6 @@ func (ti *TfIdf) CalculateQueryTfIdf(query string) []float64 {
 func (ti *TfIdf) SetSeparator(sep string) {
 	ti.DocumentSeparator = sep
 }
-
-// Criar um new ti
-// Adicionar documentos
-// Calcular idf dos documentos
-// Funcao que dada uma query, retorna o tf*idf de cada termo da query para todos os documentos [][]float64
-// Funcao que calcula o tf*idf dos termos da query
-
-// Entao, calcular a similaridade entre a query e os documentos
 
 func New() *TfIdf {
 	return &TfIdf{
