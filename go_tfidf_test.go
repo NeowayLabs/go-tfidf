@@ -19,6 +19,44 @@ func TestSetSeparator(t *testing.T) {
 	assert.Equal(t, expected, ti.DocumentSeparator)
 }
 
+func TestAddDocumentsWhenInputIsEmpty(t *testing.T) {
+	inputDocuments := []string{}
+	ti := go_tfidf.New()
+	err := ti.AddDocuments(inputDocuments)
+
+	assert.NotNil(t, err)
+}
+
+func TestCalculateQueryTfIdfForEveryDocumentWhenQueryIsInvalid(t *testing.T) {
+	inputDocuments := []string{
+		"The game of life is a game of everlasting learning",
+		"The unexamined life is not worth living",
+		"Never stop learning",
+	}
+	inputQuery := ""
+
+	expected := make([][]float64, 0)
+
+	ti := go_tfidf.New()
+	err := ti.AddDocuments(inputDocuments)
+	ti.CalculateDocumentsIdf()
+	actual, err := ti.CalculateQueryTfIdfForEveryDocument(inputQuery)
+
+	assert.Equal(t, expected, actual)
+	assert.NotNil(t, err)
+}
+
+func TestCalculateQueryTfIdfWhenQueryIsInvalid(t *testing.T) {
+	inputQuery := ""
+
+	expected := make([]float64, 0)
+
+	actual, err := go_tfidf.CalculateQueryTfIdf(inputQuery, " ")
+
+	assert.Equal(t, expected, actual)
+	assert.NotNil(t, err)
+}
+
 // The main reference for implementing this lib was https://janav.wordpress.com/2013/10/27/tf-idf-and-cosine-similarity/
 // Thus, the tests that are going to be used are based on the tutorial example
 func TestTfIdfWithCosineSimilarity(t *testing.T) {
@@ -94,10 +132,11 @@ func TestTfIdfWithCosineSimilarity(t *testing.T) {
 	}
 
 	ti := go_tfidf.New()
-	ti.AddDocuments(inputDocuments)
+	err := ti.AddDocuments(inputDocuments)
 
 	assert.Equal(t, expectedNormalizedTf, ti.DocumentsNormTermFrequency)
 	assert.Equal(t, expectedDocumentTerms, ti.DocumentsTerms)
+	assert.Nil(t, err)
 
 	ti.CalculateDocumentsIdf()
 
@@ -106,7 +145,8 @@ func TestTfIdfWithCosineSimilarity(t *testing.T) {
 	queryTfIdfDocuments, err := ti.CalculateQueryTfIdfForEveryDocument(inputQuery)
 	assert.Nil(t, err)
 
-	queryTfIdf := go_tfidf.CalculateQueryTfIdf(inputQuery, ti.DocumentSeparator)
+	queryTfIdf, err := go_tfidf.CalculateQueryTfIdf(inputQuery, ti.DocumentSeparator)
+	assert.Nil(t, err)
 
 	similarities, err := similarity.CalculateSimilarities(queryTfIdf, queryTfIdfDocuments, "Cosine")
 

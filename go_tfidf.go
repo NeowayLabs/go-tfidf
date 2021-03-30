@@ -16,7 +16,11 @@ type TfIdf struct {
 	DocumentsInverseFrequency  map[string]float64
 }
 
-func (ti *TfIdf) AddDocuments(documents []string) {
+func (ti *TfIdf) AddDocuments(documents []string) error {
+	if len(documents) < 1 {
+		return errors.New("At least one document must be passed!")
+	}
+
 	for _, doc := range documents {
 		ti.Documents = append(ti.Documents, doc)
 		docTerms := strings.Split(strings.ToLower(doc), ti.DocumentSeparator)
@@ -25,21 +29,22 @@ func (ti *TfIdf) AddDocuments(documents []string) {
 		ti.DocumentsNormTermFrequency = append(ti.DocumentsNormTermFrequency, normalizedTermFrequency(docTerms))
 	}
 	ti.DocumentsTerms = helper.RemoveDuplicates(ti.DocumentsTerms)
+
+	return nil
 }
 
 func normalizedTermFrequency(terms []string) map[string]float64 {
 	normalizedTermFrequencies := make(map[string]float64, 0)
 
-	nTerms := len(terms)
+	nTerms := float64(len(terms))
 	for _, term := range terms {
-		normalizedTermFrequencies[term] += 1.0 / float64(nTerms)
+		normalizedTermFrequencies[term] += 1.0 / nTerms
 	}
 
 	return normalizedTermFrequencies
 }
 
 func (ti *TfIdf) CalculateDocumentsIdf() {
-
 	for _, term := range ti.DocumentsTerms {
 		ti.DocumentsInverseFrequency[term] = inverseDocumentFrequency(term, ti.Documents, ti.DocumentSeparator)
 	}
@@ -66,7 +71,7 @@ func (ti *TfIdf) CalculateQueryTfIdfForEveryDocument(query string) ([][]float64,
 	queryTerms := strings.Split(query, ti.DocumentSeparator)
 	termsTfIdfs := make([][]float64, 0)
 
-	if len(queryTerms) < 1 {
+	if len(queryTerms) == 1 && queryTerms[0] == "" {
 		return termsTfIdfs, errors.New("Query must have at least one term")
 	}
 
@@ -88,13 +93,13 @@ func (ti *TfIdf) CalculateQueryTfIdfForEveryDocument(query string) ([][]float64,
 	return termsTfIdfs, nil
 }
 
-func CalculateQueryTfIdf(query string, separator string) []float64 {
+func CalculateQueryTfIdf(query string, separator string) ([]float64, error) {
 	docs := []string{query}
 	queryTerms := strings.Split(query, separator)
 	queryTfIdf := make([]float64, 0)
 
-	if len(queryTerms) < 1 {
-		return queryTfIdf
+	if len(queryTerms) == 1 && queryTerms[0] == "" {
+		return queryTfIdf, errors.New("Query must have at least one term")
 	}
 
 	termFrequencies := normalizedTermFrequency(queryTerms)
@@ -105,7 +110,7 @@ func CalculateQueryTfIdf(query string, separator string) []float64 {
 		queryTfIdf = append(queryTfIdf, tf*idf)
 	}
 
-	return queryTfIdf
+	return queryTfIdf, nil
 }
 
 func (ti *TfIdf) SetSeparator(sep string) {
