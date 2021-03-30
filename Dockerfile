@@ -6,6 +6,8 @@ RUN apk --no-cache update && \
 
 RUN adduser -D -g '' appuser
 
+COPY ./cmd/go-tfidf/go-tfidf /app/go-tfidf
+
 FROM scratch
 
 COPY --from=base /usr/share/zoneinfo /usr/share/zoneinfo

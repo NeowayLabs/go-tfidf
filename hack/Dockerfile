@@ -1,6 +1,6 @@
-FROM golang:1.12.5-stretch
+FROM golang:1.14-stretch
 
-ENV GOLANG_CI_LINT_VERSION=v1.13.2
+ENV GOLANG_CI_LINT_VERSION=v1.18.0
 
 RUN cd /usr && \
     wget -O - -q https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s ${GOLANG_CI_LINT_VERSION}

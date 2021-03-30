@@ -1,5 +1,3 @@
-// +build unit
-
 package similarity_test
 
 import (
