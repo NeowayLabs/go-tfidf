@@ -21,6 +21,10 @@ func VectorMagnitude(vector []float64) float64 {
 }
 
 func ProductDot(vectorA []float64, vectorB []float64) float64 {
+	if len(vectorA) != len(vectorB) {
+		return -1.0
+	}
+
 	result := 0.0
 	for i := 0; i < len(vectorA); i++ {
 		result += vectorA[i] * vectorB[i]

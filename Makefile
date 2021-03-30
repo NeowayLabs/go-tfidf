@@ -1,6 +1,6 @@
 version ?= latest
-img = NeowayLabs/go-tfidf:$(version)
-imgdev = NeowayLabs/go-tfidfdev:$(version)
+img = go-tfidf:$(version)
+imgdev = go-tfidfdev:$(version)
 uid=$(shell id -u $$USER)
 gid=$(shell id -g $$USER)
 dockerbuilduser=--build-arg USER_ID=$(uid) --build-arg GROUP_ID=$(gid) --build-arg USER
