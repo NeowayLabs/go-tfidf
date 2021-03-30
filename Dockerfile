@@ -6,7 +6,7 @@ RUN apk --no-cache update && \
 
 RUN adduser -D -g '' appuser
 
-COPY ./cmd/tfidf/tfidf /app/tfidf
+COPY ./cmd/go-tfidf/go-tfidf /app/go-tfidf
 
 FROM scratch
 
@@ -14,9 +14,9 @@ COPY --from=base /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=base /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=base /etc/passwd /etc/passwd
 COPY --from=base /etc/group /etc/group
-COPY --from=base /app/tfidf /app/tfidf
+COPY --from=base /app/go-tfidf /app/go-tfidf
 
 # Use an unprivileged user.
 USER appuser
 
-ENTRYPOINT ["/app/tfidf"]
+ENTRYPOINT ["/app/go-tfidf"]

@@ -1,6 +1,6 @@
 version ?= latest
-img = NeowayLabs/tfidf:$(version)
-imgdev = NeowayLabs/tfidfdev:$(version)
+img = NeowayLabs/go-tfidf:$(version)
+imgdev = NeowayLabs/go-tfidfdev:$(version)
 uid=$(shell id -u $$USER)
 gid=$(shell id -g $$USER)
 dockerbuilduser=--build-arg USER_ID=$(uid) --build-arg GROUP_ID=$(gid) --build-arg USER
@@ -40,7 +40,7 @@ publish: image
 	docker push $(img)
 
 build: modcache imagedev
-	$(runbuild) go build -v -ldflags "-w -s -X main.Version=$(version)" -o ./cmd/tfidf/tfidf ./cmd/tfidf
+	$(runbuild) go build -v -ldflags "-w -s -X main.Version=$(version)" -o ./cmd/go-tfidf/go-tfidf ./cmd/go-tfidf
 
 check: modcache imagedev
 	$(run) go test -timeout 60s -race -coverprofile=$(cov) ./...

@@ -1,4 +1,4 @@
-package tfidf
+package go-tfidf
 
 import (
 	"math"

@@ -1,2 +1,2 @@
-# tfidf
-This project implements a library that computes tfidf and Similarity
+# go-tfidf
+This project implements a library that computes go-tfidf and Similarity
