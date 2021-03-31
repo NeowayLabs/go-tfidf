@@ -3,9 +3,11 @@ package helper
 func RemoveDuplicates(words []string) []string {
 	uniqueWords := make([]string, 0)
 
+	keys := make(map[string]bool)
 	for _, w := range words {
-		if !StringArrayContainsWord(uniqueWords, w) {
+		if _, exists := keys[w]; !exists {
 			uniqueWords = append(uniqueWords, w)
+			keys[w] = true
 		}
 	}
 

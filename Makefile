@@ -26,18 +26,12 @@ guard-%:
 modcache:
 	@mkdir -p $(modcachedir)
 
-image: build
-	docker build . -t $(img)
-
 imagedev:
 	docker build . -t $(imgdev) -f ./hack/Dockerfile $(dockerbuilduser)
 
 release: guard-version
 	git tag -a $(version) -m "Generated release "$(version)
 	git push origin $(version)
-
-build: modcache imagedev
-	$(runbuild) go build -v -ldflags "-w -s -X main.Version=$(version)" -o ./cmd/go-tfidf/go-tfidf ./cmd/go-tfidf
 
 check: modcache imagedev
 	$(run) go test -timeout 60s -race -coverprofile=$(cov) ./...
