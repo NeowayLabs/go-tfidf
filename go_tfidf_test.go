@@ -19,6 +19,33 @@ func TestSetAndGetDocumentSeparator(t *testing.T) {
 
 }
 
+func TestNormalizedTermFrequency(t *testing.T) {
+	inputTerms := []string{"valid", "document"}
+	expected := map[string]float64{
+		"valid":    0.5,
+		"document": 0.5,
+	}
+
+	actual := go_tfidf.NormalizedTermFrequency(inputTerms)
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestInverseDocumentFrequency(t *testing.T) {
+	inputTerm := "life"
+	inputDocuments := []string{
+		"The game of life is a game of everlasting learning",
+		"The unexamined life is not worth living",
+		"Never stop learning",
+	}
+	separator := " "
+	expected := 1.4054651081081644
+
+	actual := go_tfidf.InverseDocumentFrequency(inputTerm, inputDocuments, separator)
+
+	assert.Equal(t, expected, actual)
+}
+
 func TestAddDocumentsWhenInputIsEmpty(t *testing.T) {
 	inputDocuments := []string{}
 	ti := go_tfidf.New()
