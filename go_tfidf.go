@@ -74,7 +74,7 @@ func inverseDocumentFrequency(term string, documents []string, separator string)
 }
 
 func (ti *TfIdf) CalculateQueryTermsTfIdfForEachDocument(query string) ([][]float64, error) {
-	queryTerms := strings.Split(query, ti.DocumentSeparator)
+	queryTerms := strings.Split(strings.ToLower(query), ti.DocumentSeparator)
 	termsTfIdfs := make([][]float64, 0)
 
 	if len(queryTerms) == 1 && queryTerms[0] == "" {
