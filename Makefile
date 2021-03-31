@@ -32,12 +32,9 @@ image: build
 imagedev:
 	docker build . -t $(imgdev) -f ./hack/Dockerfile $(dockerbuilduser)
 
-release: guard-version publish
+release: guard-version
 	git tag -a $(version) -m "Generated release "$(version)
 	git push origin $(version)
-
-publish: image
-	docker push $(img)
 
 build: modcache imagedev
 	$(runbuild) go build -v -ldflags "-w -s -X main.Version=$(version)" -o ./cmd/go-tfidf/go-tfidf ./cmd/go-tfidf

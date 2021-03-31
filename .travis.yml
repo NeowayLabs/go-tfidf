@@ -1,0 +1,23 @@
+os:
+  - linux
+
+sudo: required
+
+services:
+  - docker
+
+language: go
+
+go:
+  - "tip"
+  - "1.16"
+
+script:
+  - make check
+
+notifications:
+  email:
+    - tiago.katcipis@neoway.com.br
+    - matheus.vill@neoway.com.br
+    - kamila.hinckel@neoway.com.br
+    - leonardo.borges@neoway.com.br

@@ -9,16 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSetSeparator(t *testing.T) {
-	ti := go_tfidf.New()
-
-	newSeparator := "-"
-	expected := "-"
-	ti.SetSeparator(newSeparator)
-
-	assert.Equal(t, expected, ti.DocumentSeparator)
-}
-
 func TestAddDocumentsWhenInputIsEmpty(t *testing.T) {
 	inputDocuments := []string{}
 	ti := go_tfidf.New()
@@ -27,7 +17,39 @@ func TestAddDocumentsWhenInputIsEmpty(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestCalculateQueryTfIdfForEveryDocumentWhenQueryIsInvalid(t *testing.T) {
+func TestAddDocumentsWhenAtLeastOneDocumentIsInvalid(t *testing.T) {
+	inputDocuments := []string{"valid document", ""}
+	expectedDocument := make([]string, 0)
+	ti := go_tfidf.New()
+	err := ti.AddDocuments(inputDocuments)
+
+	assert.Equal(t, expectedDocument, ti.Documents)
+	assert.NotNil(t, err)
+}
+
+func TestAddDocuments(t *testing.T) {
+	inputDocuments := []string{"valid document"}
+
+	expectedDocuments := []string{"valid document"}
+	expectedDocumentsTerms := []string{"valid", "document"}
+	expectedDocumentsNormTermFrequency := []map[string]float64{
+		map[string]float64{
+			"valid":    0.5,
+			"document": 0.5,
+		},
+	}
+
+	ti := go_tfidf.New()
+	err := ti.AddDocuments(inputDocuments)
+
+	assert.Equal(t, expectedDocuments, ti.Documents)
+	assert.Equal(t, expectedDocumentsTerms, ti.DocumentsTerms)
+	assert.Equal(t, expectedDocumentsNormTermFrequency, ti.DocumentsNormTermFrequency)
+	assert.Equal(t, expectedDocuments, ti.Documents)
+	assert.Nil(t, err)
+}
+
+func TestCalculateQueryTermsTfIdfForEachDocumentWhenQueryIsInvalid(t *testing.T) {
 	inputDocuments := []string{
 		"The game of life is a game of everlasting learning",
 		"The unexamined life is not worth living",
@@ -40,21 +62,58 @@ func TestCalculateQueryTfIdfForEveryDocumentWhenQueryIsInvalid(t *testing.T) {
 	ti := go_tfidf.New()
 	err := ti.AddDocuments(inputDocuments)
 	ti.CalculateDocumentsIdf()
-	actual, err := ti.CalculateQueryTfIdfForEveryDocument(inputQuery)
+	actual, err := ti.CalculateQueryTermsTfIdfForEachDocument(inputQuery)
 
 	assert.Equal(t, expected, actual)
 	assert.NotNil(t, err)
 }
 
-func TestCalculateQueryTfIdfWhenQueryIsInvalid(t *testing.T) {
+func TestCalculateQueryTermsTfIdfForEachDocument(t *testing.T) {
+	inputDocuments := []string{
+		"The game of life is a game of everlasting learning",
+		"The unexamined life is not worth living",
+		"Never stop learning",
+	}
+	inputQuery := "life"
+	expected := [][]float64{
+		[]float64{0.14054651081081646},
+		[]float64{0.20078072972973776},
+		[]float64{0},
+	}
+
+	ti := go_tfidf.New()
+	err := ti.AddDocuments(inputDocuments)
+	ti.CalculateDocumentsIdf()
+	actual, err := ti.CalculateQueryTermsTfIdfForEachDocument(inputQuery)
+
+	assert.Equal(t, expected, actual)
+	assert.Nil(t, err)
+}
+
+func TestCalculateQueryTermsTfIdfWhenQueryIsInvalid(t *testing.T) {
 	inputQuery := ""
 
 	expected := make([]float64, 0)
 
-	actual, err := go_tfidf.CalculateQueryTfIdf(inputQuery, " ")
+	actual, err := go_tfidf.CalculateQueryTermsTfIdf(inputQuery, " ")
 
 	assert.Equal(t, expected, actual)
 	assert.NotNil(t, err)
+}
+
+func TestCalculateQueryTermsTfIdf(t *testing.T) {
+	inputQuery := "very-interesting-query"
+
+	expected := []float64{
+		0.3333333333333333,
+		0.3333333333333333,
+		0.3333333333333333,
+	}
+
+	actual, err := go_tfidf.CalculateQueryTermsTfIdf(inputQuery, "-")
+
+	assert.Equal(t, expected, actual)
+	assert.Nil(t, err)
 }
 
 // The main reference for implementing this lib was https://janav.wordpress.com/2013/10/27/tf-idf-and-cosine-similarity/
@@ -142,10 +201,10 @@ func TestTfIdfWithCosineSimilarity(t *testing.T) {
 
 	assert.Equal(t, expectedDocumentIdf, ti.DocumentsInverseFrequency)
 
-	queryTfIdfDocuments, err := ti.CalculateQueryTfIdfForEveryDocument(inputQuery)
+	queryTfIdfDocuments, err := ti.CalculateQueryTermsTfIdfForEachDocument(inputQuery)
 	assert.Nil(t, err)
 
-	queryTfIdf, err := go_tfidf.CalculateQueryTfIdf(inputQuery, ti.DocumentSeparator)
+	queryTfIdf, err := go_tfidf.CalculateQueryTermsTfIdf(inputQuery, ti.DocumentSeparator)
 	assert.Nil(t, err)
 
 	similarities, err := similarity.CalculateSimilarities(queryTfIdf, queryTfIdfDocuments, "Cosine")

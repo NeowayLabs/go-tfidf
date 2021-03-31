@@ -1,4 +1,4 @@
-FROM golang:1.14-stretch
+FROM golang:1.16-stretch
 
 ENV GOLANG_CI_LINT_VERSION=v1.18.0
 

@@ -2,6 +2,7 @@ package go_tfidf
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"strings"
 
@@ -22,8 +23,12 @@ func (ti *TfIdf) AddDocuments(documents []string) error {
 	}
 
 	for _, doc := range documents {
-		ti.Documents = append(ti.Documents, doc)
 		docTerms := strings.Split(strings.ToLower(doc), ti.DocumentSeparator)
+		if len(docTerms) < 1 || (len(docTerms) == 1 && docTerms[0] == "") {
+			ti.Documents = make([]string, 0)
+			return errors.New(fmt.Sprintf("Document error. %s document is invalid", doc))
+		}
+		ti.Documents = append(ti.Documents, doc)
 		ti.DocumentsTerms = append(ti.DocumentsTerms, docTerms...)
 
 		ti.DocumentsNormTermFrequency = append(ti.DocumentsNormTermFrequency, normalizedTermFrequency(docTerms))
@@ -35,8 +40,8 @@ func (ti *TfIdf) AddDocuments(documents []string) error {
 
 func normalizedTermFrequency(terms []string) map[string]float64 {
 	normalizedTermFrequencies := make(map[string]float64, 0)
-
 	nTerms := float64(len(terms))
+
 	for _, term := range terms {
 		normalizedTermFrequencies[term] += 1.0 / nTerms
 	}
@@ -52,6 +57,7 @@ func (ti *TfIdf) CalculateDocumentsIdf() {
 
 func inverseDocumentFrequency(term string, documents []string, separator string) float64 {
 	countTermsInDocuments := 0
+
 	for _, doc := range documents {
 		docTerms := strings.Split(strings.ToLower(doc), separator)
 		if helper.StringArrayContainsWord(docTerms, strings.ToLower(term)) {
@@ -67,7 +73,7 @@ func inverseDocumentFrequency(term string, documents []string, separator string)
 
 }
 
-func (ti *TfIdf) CalculateQueryTfIdfForEveryDocument(query string) ([][]float64, error) {
+func (ti *TfIdf) CalculateQueryTermsTfIdfForEachDocument(query string) ([][]float64, error) {
 	queryTerms := strings.Split(query, ti.DocumentSeparator)
 	termsTfIdfs := make([][]float64, 0)
 
@@ -93,7 +99,7 @@ func (ti *TfIdf) CalculateQueryTfIdfForEveryDocument(query string) ([][]float64,
 	return termsTfIdfs, nil
 }
 
-func CalculateQueryTfIdf(query string, separator string) ([]float64, error) {
+func CalculateQueryTermsTfIdf(query string, separator string) ([]float64, error) {
 	docs := []string{query}
 	queryTerms := strings.Split(query, separator)
 	queryTfIdf := make([]float64, 0)
@@ -111,10 +117,6 @@ func CalculateQueryTfIdf(query string, separator string) ([]float64, error) {
 	}
 
 	return queryTfIdf, nil
-}
-
-func (ti *TfIdf) SetSeparator(sep string) {
-	ti.DocumentSeparator = sep
 }
 
 func New() *TfIdf {
