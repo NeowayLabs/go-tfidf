@@ -9,6 +9,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestSetAndGetDocumentSeparator(t *testing.T) {
+	ti := go_tfidf.New()
+	input := "-"
+
+	ti.SetDocumentSeparator(input)
+
+	assert.Equal(t, input, ti.GetDocumentSeparator())
+
+}
+
 func TestAddDocumentsWhenInputIsEmpty(t *testing.T) {
 	inputDocuments := []string{}
 	ti := go_tfidf.New()
@@ -23,7 +33,7 @@ func TestAddDocumentsWhenAtLeastOneDocumentIsInvalid(t *testing.T) {
 	ti := go_tfidf.New()
 	err := ti.AddDocuments(inputDocuments)
 
-	assert.Equal(t, expectedDocument, ti.Documents)
+	assert.Equal(t, expectedDocument, ti.GetDocuments())
 	assert.NotNil(t, err)
 }
 
@@ -42,10 +52,10 @@ func TestAddDocuments(t *testing.T) {
 	ti := go_tfidf.New()
 	err := ti.AddDocuments(inputDocuments)
 
-	assert.Equal(t, expectedDocuments, ti.Documents)
-	assert.Equal(t, expectedDocumentsTerms, ti.DocumentsTerms)
-	assert.Equal(t, expectedDocumentsNormTermFrequency, ti.DocumentsNormTermFrequency)
-	assert.Equal(t, expectedDocuments, ti.Documents)
+	assert.Equal(t, expectedDocuments, ti.GetDocuments())
+	assert.Equal(t, expectedDocumentsTerms, ti.GetDocumentsTerms())
+	assert.Equal(t, expectedDocumentsNormTermFrequency, ti.GetDocumentsNormTermFrequency())
+	assert.Equal(t, expectedDocuments, ti.GetDocuments())
 	assert.Nil(t, err)
 }
 
@@ -193,18 +203,18 @@ func TestTfIdfWithCosineSimilarity(t *testing.T) {
 	ti := go_tfidf.New()
 	err := ti.AddDocuments(inputDocuments)
 
-	assert.Equal(t, expectedNormalizedTf, ti.DocumentsNormTermFrequency)
-	assert.Equal(t, expectedDocumentTerms, ti.DocumentsTerms)
+	assert.Equal(t, expectedNormalizedTf, ti.GetDocumentsNormTermFrequency())
+	assert.Equal(t, expectedDocumentTerms, ti.GetDocumentsTerms())
 	assert.Nil(t, err)
 
 	ti.CalculateDocumentsIdf()
 
-	assert.Equal(t, expectedDocumentIdf, ti.DocumentsInverseFrequency)
+	assert.Equal(t, expectedDocumentIdf, ti.GetDocumentsInverseFrequency())
 
 	queryTfIdfDocuments, err := ti.CalculateQueryTermsTfIdfForEachDocument(inputQuery)
 	assert.Nil(t, err)
 
-	queryTfIdf, err := go_tfidf.CalculateQueryTermsTfIdf(inputQuery, ti.DocumentSeparator)
+	queryTfIdf, err := go_tfidf.CalculateQueryTermsTfIdf(inputQuery, ti.GetDocumentSeparator())
 	assert.Nil(t, err)
 
 	similarities, err := similarity.CalculateSimilarities(queryTfIdf, queryTfIdfDocuments, "Cosine")

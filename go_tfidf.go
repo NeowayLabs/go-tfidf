@@ -10,11 +10,11 @@ import (
 )
 
 type TfIdf struct {
-	DocumentSeparator          string
-	Documents                  []string
-	DocumentsNormTermFrequency []map[string]float64
-	DocumentsTerms             []string
-	DocumentsInverseFrequency  map[string]float64
+	documentSeparator          string
+	documents                  []string
+	documentsNormTermFrequency []map[string]float64
+	documentsTerms             []string
+	documentsInverseFrequency  map[string]float64
 }
 
 func (ti *TfIdf) AddDocuments(documents []string) error {
@@ -23,17 +23,17 @@ func (ti *TfIdf) AddDocuments(documents []string) error {
 	}
 
 	for _, doc := range documents {
-		docTerms := strings.Split(strings.ToLower(doc), ti.DocumentSeparator)
+		docTerms := strings.Split(strings.ToLower(doc), ti.documentSeparator)
 		if len(docTerms) < 1 || (len(docTerms) == 1 && docTerms[0] == "") {
-			ti.Documents = make([]string, 0)
+			ti.documents = make([]string, 0)
 			return errors.New(fmt.Sprintf("Document error. %s document is invalid", doc))
 		}
-		ti.Documents = append(ti.Documents, doc)
-		ti.DocumentsTerms = append(ti.DocumentsTerms, docTerms...)
+		ti.documents = append(ti.documents, doc)
+		ti.documentsTerms = append(ti.documentsTerms, docTerms...)
 
-		ti.DocumentsNormTermFrequency = append(ti.DocumentsNormTermFrequency, normalizedTermFrequency(docTerms))
+		ti.documentsNormTermFrequency = append(ti.documentsNormTermFrequency, normalizedTermFrequency(docTerms))
 	}
-	ti.DocumentsTerms = helper.RemoveDuplicates(ti.DocumentsTerms)
+	ti.documentsTerms = helper.RemoveDuplicates(ti.documentsTerms)
 
 	return nil
 }
@@ -50,8 +50,8 @@ func normalizedTermFrequency(terms []string) map[string]float64 {
 }
 
 func (ti *TfIdf) CalculateDocumentsIdf() {
-	for _, term := range ti.DocumentsTerms {
-		ti.DocumentsInverseFrequency[term] = inverseDocumentFrequency(term, ti.Documents, ti.DocumentSeparator)
+	for _, term := range ti.documentsTerms {
+		ti.documentsInverseFrequency[term] = inverseDocumentFrequency(term, ti.documents, ti.documentSeparator)
 	}
 }
 
@@ -74,14 +74,14 @@ func inverseDocumentFrequency(term string, documents []string, separator string)
 }
 
 func (ti *TfIdf) CalculateQueryTermsTfIdfForEachDocument(query string) ([][]float64, error) {
-	queryTerms := strings.Split(query, ti.DocumentSeparator)
+	queryTerms := strings.Split(query, ti.documentSeparator)
 	termsTfIdfs := make([][]float64, 0)
 
 	if len(queryTerms) == 1 && queryTerms[0] == "" {
 		return termsTfIdfs, errors.New("Query must have at least one term")
 	}
 
-	for docIdx, docNormTf := range ti.DocumentsNormTermFrequency {
+	for docIdx, docNormTf := range ti.documentsNormTermFrequency {
 		termsTfIdfs = append(termsTfIdfs, make([]float64, 0))
 		for _, term := range queryTerms {
 			tf := 0.0
@@ -89,7 +89,7 @@ func (ti *TfIdf) CalculateQueryTermsTfIdfForEachDocument(query string) ([][]floa
 			if v, ok := docNormTf[term]; ok {
 				tf = v
 			}
-			if v, ok := ti.DocumentsInverseFrequency[term]; ok {
+			if v, ok := ti.documentsInverseFrequency[term]; ok {
 				idf = v
 			}
 			termsTfIdfs[docIdx] = append(termsTfIdfs[docIdx], tf*idf)
@@ -119,12 +119,36 @@ func CalculateQueryTermsTfIdf(query string, separator string) ([]float64, error)
 	return queryTfIdf, nil
 }
 
+func (ti *TfIdf) SetDocumentSeparator(separator string) {
+	ti.documentSeparator = separator
+}
+
+func (ti *TfIdf) GetDocumentSeparator() string {
+	return ti.documentSeparator
+}
+
+func (ti *TfIdf) GetDocuments() []string {
+	return ti.documents
+}
+
+func (ti *TfIdf) GetDocumentsNormTermFrequency() []map[string]float64 {
+	return ti.documentsNormTermFrequency
+}
+
+func (ti *TfIdf) GetDocumentsInverseFrequency() map[string]float64 {
+	return ti.documentsInverseFrequency
+}
+
+func (ti *TfIdf) GetDocumentsTerms() []string {
+	return ti.documentsTerms
+}
+
 func New() *TfIdf {
 	return &TfIdf{
-		DocumentSeparator:          " ",
-		Documents:                  make([]string, 0),
-		DocumentsNormTermFrequency: make([]map[string]float64, 0),
-		DocumentsTerms:             make([]string, 0),
-		DocumentsInverseFrequency:  make(map[string]float64, 0),
+		documentSeparator:          " ",
+		documents:                  make([]string, 0),
+		documentsNormTermFrequency: make([]map[string]float64, 0),
+		documentsTerms:             make([]string, 0),
+		documentsInverseFrequency:  make(map[string]float64, 0),
 	}
 }
