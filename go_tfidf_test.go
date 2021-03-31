@@ -50,7 +50,7 @@ func TestAddDocumentsWhenAtLeastOneDocumentIsInvalid(t *testing.T) {
 	ti := go_tfidf.New()
 	err := ti.AddDocuments(inputDocuments)
 
-	assert.Equal(t, expectedDocument, ti.GetDocuments())
+	assert.Equal(t, expectedDocument, ti.Documents())
 	assert.NotNil(t, err)
 }
 
@@ -69,10 +69,10 @@ func TestAddDocuments(t *testing.T) {
 	ti := go_tfidf.New()
 	err := ti.AddDocuments(inputDocuments)
 
-	assert.Equal(t, expectedDocuments, ti.GetDocuments())
-	assert.Equal(t, expectedDocumentsTerms, ti.GetDocumentsTerms())
-	assert.Equal(t, expectedDocumentsNormTermFrequency, ti.GetDocumentsNormTermFrequency())
-	assert.Equal(t, expectedDocuments, ti.GetDocuments())
+	assert.Equal(t, expectedDocuments, ti.Documents())
+	assert.Equal(t, expectedDocumentsTerms, ti.DocumentsTerms())
+	assert.Equal(t, expectedDocumentsNormTermFrequency, ti.DocumentsNormTermFrequency())
+	assert.Equal(t, expectedDocuments, ti.Documents())
 	assert.Nil(t, err)
 }
 
@@ -220,13 +220,13 @@ func TestTfIdfWithCosineSimilarity(t *testing.T) {
 	ti := go_tfidf.New()
 	err := ti.AddDocuments(inputDocuments)
 
-	assert.Equal(t, expectedNormalizedTf, ti.GetDocumentsNormTermFrequency())
-	assert.Equal(t, expectedDocumentTerms, ti.GetDocumentsTerms())
+	assert.Equal(t, expectedNormalizedTf, ti.DocumentsNormTermFrequency())
+	assert.Equal(t, expectedDocumentTerms, ti.DocumentsTerms())
 	assert.Nil(t, err)
 
 	ti.CalculateDocumentsIdf()
 
-	assert.Equal(t, expectedDocumentIdf, ti.GetDocumentsInverseFrequency())
+	assert.Equal(t, expectedDocumentIdf, ti.DocumentsInverseFrequency())
 
 	queryTfIdfDocuments, err := ti.CalculateQueryTermsTfIdfForEachDocument(inputQuery)
 	assert.Nil(t, err)

@@ -119,19 +119,19 @@ func CalculateQueryTermsTfIdf(query string, separator string) ([]float64, error)
 	return queryTfIdf, nil
 }
 
-func (ti *TfIdf) GetDocuments() []string {
+func (ti *TfIdf) Documents() []string {
 	return ti.documents
 }
 
-func (ti *TfIdf) GetDocumentsNormTermFrequency() []map[string]float64 {
+func (ti *TfIdf) DocumentsNormTermFrequency() []map[string]float64 {
 	return ti.documentsNormTermFrequency
 }
 
-func (ti *TfIdf) GetDocumentsInverseFrequency() map[string]float64 {
+func (ti *TfIdf) DocumentsInverseFrequency() map[string]float64 {
 	return ti.documentsInverseFrequency
 }
 
-func (ti *TfIdf) GetDocumentsTerms() []string {
+func (ti *TfIdf) DocumentsTerms() []string {
 	return ti.documentsTerms
 }
 
