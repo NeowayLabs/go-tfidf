@@ -101,7 +101,7 @@ func (ti *TfIdf) CalculateQueryTermsTfIdfForEachDocument(query string) ([][]floa
 
 func CalculateQueryTermsTfIdf(query string, separator string) ([]float64, error) {
 	docs := []string{query}
-	queryTerms := strings.Split(query, separator)
+	queryTerms := strings.Split(strings.ToLower(query), separator)
 	queryTfIdf := make([]float64, 0)
 
 	if len(queryTerms) == 1 && queryTerms[0] == "" {
