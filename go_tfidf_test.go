@@ -9,16 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSetAndGetDocumentSeparator(t *testing.T) {
-	ti := go_tfidf.New()
-	input := "-"
-
-	ti.SetDocumentSeparator(input)
-
-	assert.Equal(t, input, ti.GetDocumentSeparator())
-
-}
-
 func TestNormalizedTermFrequency(t *testing.T) {
 	inputTerms := []string{"valid", "document"}
 	expected := map[string]float64{
@@ -241,7 +231,7 @@ func TestTfIdfWithCosineSimilarity(t *testing.T) {
 	queryTfIdfDocuments, err := ti.CalculateQueryTermsTfIdfForEachDocument(inputQuery)
 	assert.Nil(t, err)
 
-	queryTfIdf, err := go_tfidf.CalculateQueryTermsTfIdf(inputQuery, ti.GetDocumentSeparator())
+	queryTfIdf, err := go_tfidf.CalculateQueryTermsTfIdf(inputQuery, ti.DocumentSeparator)
 	assert.Nil(t, err)
 
 	similarities, err := similarity.CalculateSimilarities(queryTfIdf, queryTfIdfDocuments, "Cosine")

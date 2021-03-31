@@ -10,7 +10,7 @@ import (
 )
 
 type TfIdf struct {
-	documentSeparator          string
+	DocumentSeparator          string
 	documents                  []string
 	documentsNormTermFrequency []map[string]float64
 	documentsTerms             []string
@@ -23,7 +23,7 @@ func (ti *TfIdf) AddDocuments(documents []string) error {
 	}
 
 	for _, doc := range documents {
-		docTerms := strings.Split(strings.ToLower(doc), ti.documentSeparator)
+		docTerms := strings.Split(strings.ToLower(doc), ti.DocumentSeparator)
 		if len(docTerms) < 1 || (len(docTerms) == 1 && docTerms[0] == "") {
 			ti.documents = make([]string, 0)
 			return errors.New(fmt.Sprintf("Document error. %s document is invalid", doc))
@@ -51,7 +51,7 @@ func normalizedTermFrequency(terms []string) map[string]float64 {
 
 func (ti *TfIdf) CalculateDocumentsIdf() {
 	for _, term := range ti.documentsTerms {
-		ti.documentsInverseFrequency[term] = inverseDocumentFrequency(term, ti.documents, ti.documentSeparator)
+		ti.documentsInverseFrequency[term] = inverseDocumentFrequency(term, ti.documents, ti.DocumentSeparator)
 	}
 }
 
@@ -74,7 +74,7 @@ func inverseDocumentFrequency(term string, documents []string, separator string)
 }
 
 func (ti *TfIdf) CalculateQueryTermsTfIdfForEachDocument(query string) ([][]float64, error) {
-	queryTerms := strings.Split(query, ti.documentSeparator)
+	queryTerms := strings.Split(query, ti.DocumentSeparator)
 	termsTfIdfs := make([][]float64, 0)
 
 	if len(queryTerms) == 1 && queryTerms[0] == "" {
@@ -119,14 +119,6 @@ func CalculateQueryTermsTfIdf(query string, separator string) ([]float64, error)
 	return queryTfIdf, nil
 }
 
-func (ti *TfIdf) SetDocumentSeparator(separator string) {
-	ti.documentSeparator = separator
-}
-
-func (ti *TfIdf) GetDocumentSeparator() string {
-	return ti.documentSeparator
-}
-
 func (ti *TfIdf) GetDocuments() []string {
 	return ti.documents
 }
@@ -145,7 +137,7 @@ func (ti *TfIdf) GetDocumentsTerms() []string {
 
 func New() *TfIdf {
 	return &TfIdf{
-		documentSeparator:          " ",
+		DocumentSeparator:          " ",
 		documents:                  make([]string, 0),
 		documentsNormTermFrequency: make([]map[string]float64, 0),
 		documentsTerms:             make([]string, 0),
