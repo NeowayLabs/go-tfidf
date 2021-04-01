@@ -137,9 +137,9 @@ func (ti *TfIdf) DocumentsTerms() []string {
 	return ti.documentsTerms
 }
 
-func New(documents []string) (*TfIdf, error) {
+func New(documents []string, separator string) (*TfIdf, error) {
 	ti := TfIdf{
-		DocumentSeparator:          " ",
+		DocumentSeparator:          separator,
 		documents:                  make([]string, 0),
 		documentsNormTermFrequency: make([]map[string]float64, 0),
 		documentsTerms:             make([]string, 0),
