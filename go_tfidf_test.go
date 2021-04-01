@@ -38,17 +38,20 @@ func TestInverseDocumentFrequency(t *testing.T) {
 
 func TestAddDocumentsWhenInputIsEmpty(t *testing.T) {
 	inputDocuments := []string{}
-	ti := go_tfidf.New()
-	err := ti.AddDocuments(inputDocuments)
 
+	ti, err := go_tfidf.New(inputDocuments)
+
+	assert.Nil(t, ti)
 	assert.NotNil(t, err)
 }
 
 func TestAddDocumentsWhenAtLeastOneDocumentIsInvalid(t *testing.T) {
-	inputDocuments := []string{"valid document", ""}
+	validInputDocuments := []string{"valid document"}
+	invalidInputDocuments := []string{""}
 	expectedDocument := make([]string, 0)
-	ti := go_tfidf.New()
-	err := ti.AddDocuments(inputDocuments)
+
+	ti, _ := go_tfidf.New(validInputDocuments)
+	err := ti.AddDocuments(invalidInputDocuments)
 
 	assert.Equal(t, expectedDocument, ti.Documents())
 	assert.NotNil(t, err)
@@ -56,18 +59,22 @@ func TestAddDocumentsWhenAtLeastOneDocumentIsInvalid(t *testing.T) {
 
 func TestAddDocuments(t *testing.T) {
 	inputDocuments := []string{"valid document"}
+	inputDocuments2 := []string{"document2"}
 
-	expectedDocuments := []string{"valid document"}
-	expectedDocumentsTerms := []string{"valid", "document"}
+	expectedDocuments := []string{"valid document", "document2"}
+	expectedDocumentsTerms := []string{"valid", "document", "document2"}
 	expectedDocumentsNormTermFrequency := []map[string]float64{
 		map[string]float64{
 			"valid":    0.5,
 			"document": 0.5,
 		},
+		map[string]float64{
+			"document2": 1.0,
+		},
 	}
 
-	ti := go_tfidf.New()
-	err := ti.AddDocuments(inputDocuments)
+	ti, _ := go_tfidf.New(inputDocuments)
+	err := ti.AddDocuments(inputDocuments2)
 
 	assert.Equal(t, expectedDocuments, ti.Documents())
 	assert.Equal(t, expectedDocumentsTerms, ti.DocumentsTerms())
@@ -86,9 +93,7 @@ func TestCalculateQueryTermsTfIdfForEachDocumentWhenQueryIsInvalid(t *testing.T)
 
 	expected := make([][]float64, 0)
 
-	ti := go_tfidf.New()
-	err := ti.AddDocuments(inputDocuments)
-	ti.CalculateDocumentsIdf()
+	ti, _ := go_tfidf.New(inputDocuments)
 	actual, err := ti.CalculateQueryTermsTfIdfForEachDocument(inputQuery)
 
 	assert.Equal(t, expected, actual)
@@ -108,9 +113,7 @@ func TestCalculateQueryTermsTfIdfForEachDocument(t *testing.T) {
 		[]float64{0},
 	}
 
-	ti := go_tfidf.New()
-	err := ti.AddDocuments(inputDocuments)
-	ti.CalculateDocumentsIdf()
+	ti, _ := go_tfidf.New(inputDocuments)
 	actual, err := ti.CalculateQueryTermsTfIdfForEachDocument(inputQuery)
 
 	assert.Equal(t, expected, actual)
@@ -217,14 +220,11 @@ func TestTfIdfWithCosineSimilarity(t *testing.T) {
 		0.7071067811865475,
 	}
 
-	ti := go_tfidf.New()
-	err := ti.AddDocuments(inputDocuments)
+	ti, err := go_tfidf.New(inputDocuments)
 
 	assert.Equal(t, expectedNormalizedTf, ti.DocumentsNormTermFrequency())
 	assert.Equal(t, expectedDocumentTerms, ti.DocumentsTerms())
 	assert.Nil(t, err)
-
-	ti.CalculateDocumentsIdf()
 
 	assert.Equal(t, expectedDocumentIdf, ti.DocumentsInverseFrequency())
 

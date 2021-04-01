@@ -33,7 +33,9 @@ func (ti *TfIdf) AddDocuments(documents []string) error {
 
 		ti.documentsNormTermFrequency = append(ti.documentsNormTermFrequency, normalizedTermFrequency(docTerms))
 	}
+
 	ti.documentsTerms = helper.RemoveDuplicates(ti.documentsTerms)
+	ti.calculateDocumentsIdf()
 
 	return nil
 }
@@ -49,7 +51,7 @@ func normalizedTermFrequency(terms []string) map[string]float64 {
 	return normalizedTermFrequencies
 }
 
-func (ti *TfIdf) CalculateDocumentsIdf() {
+func (ti *TfIdf) calculateDocumentsIdf() {
 	for _, term := range ti.documentsTerms {
 		ti.documentsInverseFrequency[term] = inverseDocumentFrequency(term, ti.documents, ti.DocumentSeparator)
 	}
@@ -135,12 +137,18 @@ func (ti *TfIdf) DocumentsTerms() []string {
 	return ti.documentsTerms
 }
 
-func New() *TfIdf {
-	return &TfIdf{
+func New(documents []string) (*TfIdf, error) {
+	ti := TfIdf{
 		DocumentSeparator:          " ",
 		documents:                  make([]string, 0),
 		documentsNormTermFrequency: make([]map[string]float64, 0),
 		documentsTerms:             make([]string, 0),
 		documentsInverseFrequency:  make(map[string]float64, 0),
 	}
+	err := ti.AddDocuments(documents)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ti, nil
 }
