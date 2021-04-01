@@ -35,7 +35,12 @@ func Cosine(a []float64, b []float64) float64 {
 		return -1.0
 	}
 
-	return ProductDot(a, b) / (VectorMagnitude(a) * VectorMagnitude(b))
+	magnitudes := VectorMagnitude(a) * VectorMagnitude(b)
+	if magnitudes > 0.0 {
+		return ProductDot(a, b) / magnitudes
+	}
+
+	return 0.0
 }
 
 func VectorMagnitude(vector []float64) float64 {
