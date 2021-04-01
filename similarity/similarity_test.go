@@ -68,6 +68,15 @@ func TestCosineWhenVectorsHaveDifferentLength(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
+func TestCosineWhenVectorsMagnitudeMultiplicationReturnsZero(t *testing.T) {
+	inputA := []float64{1.0, 1.0, 1.0}
+	inputB := []float64{0.0, 0.0, 0.0}
+	expected := 0.0
+	actual := similarity.Cosine(inputA, inputB)
+
+	assert.Equal(t, expected, actual)
+}
+
 func TestCosine(t *testing.T) {
 	inputA := []float64{1.0, 2.0, 3.0, 1.0, 1.0}
 	inputB := []float64{1.0, 2.0, 3.0, 1.0, 1.0}
