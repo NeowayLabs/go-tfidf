@@ -9,17 +9,17 @@ import (
 )
 
 // A TfIdf represents the set of variables that are used for computing the reference documents Tf and Idf values.
-// DocumentSeparator is the string that is going to be used to split the documents terms.
-// documents are the set of reference documents that are going to be used to compare with input queries.
-// documentsNormTermFrequency are the normalized term frequencies for all TfIdf.documents (Tf).
-// documentsTerms are the terms for all TfIdf.documents splitted by the TfIdf.DocumentSeparator.
-// documentsInverseFrequency are the TfIdf.documentTerms Inverse Document Frequency (Idf).
 type TfIdf struct {
-	DocumentSeparator          string
-	documents                  []string
+	// DocumentSeparator is the string that is going to be used to split the documents terms.
+	DocumentSeparator string
+	// documents are the set of reference documents that are going to be used to compare with input queries.
+	documents []string
+	// documentsNormTermFrequency are the normalized term frequencies for all TfIdf.documents (Tf).
 	documentsNormTermFrequency []map[string]float64
-	documentsTerms             []string
-	documentsInverseFrequency  map[string]float64
+	// documentsTerms are the terms for all TfIdf.documents splitted by the TfIdf.DocumentSeparator.
+	documentsTerms []string
+	// documentsInverseFrequency are the TfIdf.documentTerms Inverse Document Frequency (Idf).
+	documentsInverseFrequency map[string]float64
 }
 
 // AddDocuments receives an array of strings containing the documents that are going to be used as references.
