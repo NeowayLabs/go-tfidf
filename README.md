@@ -31,23 +31,31 @@ go get -u github.com/NeowayLabs/go-tfidf
 
 # Example
 
-```
-separator := " "
-similarityFunction := "Cosine"
+```go
+import (
+	go_tfidf "github.com/NeowayLabs/go-tfidf"
+	"github.com/NeowayLabs/go-tfidf/similarity"
+)
 
-inputDocuments := []string{
-		"The game of life is a game of everlasting learning",
-		"The unexamined life is not worth living",
-		"Never stop learning",
-	}
-inputQuery := "life learning"
+func main() {
+	separator := " "
+	similarityFunction := "Cosine"
 
-ti, err := go_tfidf.New(inputDocuments, separator)
+	inputDocuments := []string{
+			"The game of life is a game of everlasting learning",
+			"The unexamined life is not worth living",
+			"Never stop learning",
+		}
+	inputQuery := "life learning"
 
-queryTfIdfDocuments, err := ti.CalculateQueryTermsTfIdfForEachDocument(inputQuery)
-queryTfIdf, err := go_tfidf.CalculateQueryTermsTfIdf(inputQuery, ti.DocumentSeparator)
+	ti, err := go_tfidf.New(inputDocuments, separator)
 
-similarities, err := similarity.CalculateSimilarities(queryTfIdf, queryTfIdfDocuments, similarityFunction)
+	queryTfIdfDocuments, err := ti.CalculateQueryTermsTfIdfForEachDocument(inputQuery)
+	queryTfIdf, err := go_tfidf.CalculateQueryTermsTfIdf(inputQuery, ti.DocumentSeparator)
+
+	similarities, err := similarity.CalculateSimilarities(queryTfIdf, queryTfIdfDocuments, similarityFunction)
+}
+
 ```
 
 
