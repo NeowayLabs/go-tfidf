@@ -34,6 +34,7 @@ go get -u github.com/NeowayLabs/go-tfidf
 ```
 separator := " "
 similarityFunction := "Cosine"
+
 inputDocuments := []string{
 		"The game of life is a game of everlasting learning",
 		"The unexamined life is not worth living",
