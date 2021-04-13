@@ -13,6 +13,44 @@ const (
 	defaultSeparator = " "
 )
 
+func TestStringArrayContainsWordShouldReturnTrue(t *testing.T) {
+	input := []string{"cake", "pizza", "avocado"}
+
+	actual := go_tfidf.StringArrayContainsWord(input, "avocado")
+
+	assert.True(t, actual)
+
+}
+
+func TestStringArrayContainsWordShouldReturnFalse(t *testing.T) {
+	input := []string{"cake", "pizza", "avocado"}
+
+	actual := go_tfidf.StringArrayContainsWord(input, "pie")
+
+	assert.False(t, actual)
+
+}
+
+func TestRemoveDuplicatesShouldRemoveDuplicatedWords(t *testing.T) {
+	input := []string{"cake", "pizza", "avocado", "pizza", "avocado", "pie"}
+	expected := []string{"cake", "pizza", "avocado", "pie"}
+
+	actual := go_tfidf.RemoveDuplicates(input)
+
+	assert.Equal(t, expected, actual)
+
+}
+
+func TestRemoveDuplicatesShouldReturnSameArray(t *testing.T) {
+	input := []string{"cake", "pizza", "avocado", "pie"}
+	expected := []string{"cake", "pizza", "avocado", "pie"}
+
+	actual := go_tfidf.RemoveDuplicates(input)
+
+	assert.Equal(t, expected, actual)
+
+}
+
 func TestNormalizedTermFrequency(t *testing.T) {
 	inputTerms := []string{"valid", "document"}
 	expected := map[string]float64{

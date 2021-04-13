@@ -1,3 +1,4 @@
+// Package go_tfidf provides a Tf-Idf implementation.
 package go_tfidf
 
 import (
@@ -5,8 +6,6 @@ import (
 	"fmt"
 	"math"
 	"strings"
-
-	"github.com/NeowayLabs/go-tfidf/helper"
 )
 
 type TfIdf struct {
@@ -17,16 +16,19 @@ type TfIdf struct {
 	documentsInverseFrequency  map[string]float64
 }
 
+// AddDocuments receives an array of strings containing the documents that are going to be used as references.
+// If the array is empty or any of the input documents are invalid, it return an error.
+// An invalid document has no terms or only has one, but is an empty string.
 func (ti *TfIdf) AddDocuments(documents []string) error {
 	if len(documents) < 1 {
-		return errors.New("At least one document must be passed!")
+		return errors.New("at least one document must be passed")
 	}
 
 	for _, doc := range documents {
 		docTerms := strings.Split(strings.ToLower(doc), ti.DocumentSeparator)
 		if len(docTerms) < 1 || (len(docTerms) == 1 && docTerms[0] == "") {
 			ti.documents = make([]string, 0)
-			return errors.New(fmt.Sprintf("Document error. %s document is invalid", doc))
+			return fmt.Errorf("document error. %s document is invalid", doc)
 		}
 		ti.documents = append(ti.documents, doc)
 		ti.documentsTerms = append(ti.documentsTerms, docTerms...)
@@ -34,10 +36,104 @@ func (ti *TfIdf) AddDocuments(documents []string) error {
 		ti.documentsNormTermFrequency = append(ti.documentsNormTermFrequency, normalizedTermFrequency(docTerms))
 	}
 
-	ti.documentsTerms = helper.RemoveDuplicates(ti.documentsTerms)
+	ti.documentsTerms = removeDuplicates(ti.documentsTerms)
 	ti.calculateDocumentsIdf()
 
 	return nil
+}
+
+// CalculateQueryTermsTfIdfForEachDocument receives a query string and computes Tf-Idf of its terms for every document in the *TfIdf object.
+// If the query term is an empty string, returns an error.
+func (ti *TfIdf) CalculateQueryTermsTfIdfForEachDocument(query string) ([][]float64, error) {
+	queryTerms := strings.Split(strings.ToLower(query), ti.DocumentSeparator)
+	termsTfIdfs := make([][]float64, 0)
+
+	if len(queryTerms) == 1 && queryTerms[0] == "" {
+		return termsTfIdfs, errors.New("query must have at least one term")
+	}
+
+	for docIdx, docNormTf := range ti.documentsNormTermFrequency {
+		termsTfIdfs = append(termsTfIdfs, make([]float64, 0))
+		for _, term := range queryTerms {
+			tf := 0.0
+			idf := 0.0
+			if v, ok := docNormTf[term]; ok {
+				tf = v
+			}
+			if v, ok := ti.documentsInverseFrequency[term]; ok {
+				idf = v
+			}
+			termsTfIdfs[docIdx] = append(termsTfIdfs[docIdx], tf*idf)
+		}
+	}
+
+	return termsTfIdfs, nil
+}
+
+// CalculateQueryTermsTfIdf receives a query string with a separator (*TfIdf.DocumentSeparator) and computes the TfIdfs value for each term.
+// If the query term is an empty string, returns an error.
+func CalculateQueryTermsTfIdf(query string, separator string) ([]float64, error) {
+	docs := []string{query}
+	queryTerms := strings.Split(strings.ToLower(query), separator)
+	queryTfIdf := make([]float64, 0)
+
+	if len(queryTerms) == 1 && queryTerms[0] == "" {
+		return queryTfIdf, errors.New("query must have at least one term")
+	}
+
+	termFrequencies := normalizedTermFrequency(queryTerms)
+
+	for _, term := range queryTerms {
+		tf := termFrequencies[term]
+		idf := inverseDocumentFrequency(term, docs, separator)
+		queryTfIdf = append(queryTfIdf, tf*idf)
+	}
+
+	return queryTfIdf, nil
+}
+
+func removeDuplicates(words []string) []string {
+	uniqueWords := make([]string, 0)
+
+	keys := make(map[string]bool)
+	for _, w := range words {
+		if _, exists := keys[w]; !exists {
+			uniqueWords = append(uniqueWords, w)
+			keys[w] = true
+		}
+	}
+
+	return uniqueWords
+}
+
+func stringArrayContainsWord(words []string, word string) bool {
+	for _, w := range words {
+		if word == w {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Documents returns the *TfIdf.documents private attribute values.
+func (ti *TfIdf) Documents() []string {
+	return ti.documents
+}
+
+// DocumentsNormTermFrequency returns the *TfIdf.documentsNormTermFrequency private attribute values.
+func (ti *TfIdf) DocumentsNormTermFrequency() []map[string]float64 {
+	return ti.documentsNormTermFrequency
+}
+
+// DocumentsInverseFrequency returns the *TfIdf.DocumentsInverseFrequency private attribute values.
+func (ti *TfIdf) DocumentsInverseFrequency() map[string]float64 {
+	return ti.documentsInverseFrequency
+}
+
+// DocumentsInverseFrequency returns the *TfIdf.documentsTerms private attribute values.
+func (ti *TfIdf) DocumentsTerms() []string {
+	return ti.documentsTerms
 }
 
 func normalizedTermFrequency(terms []string) map[string]float64 {
@@ -62,7 +158,7 @@ func inverseDocumentFrequency(term string, documents []string, separator string)
 
 	for _, doc := range documents {
 		docTerms := strings.Split(strings.ToLower(doc), separator)
-		if helper.StringArrayContainsWord(docTerms, strings.ToLower(term)) {
+		if stringArrayContainsWord(docTerms, strings.ToLower(term)) {
 			countTermsInDocuments++
 		}
 	}
@@ -73,68 +169,6 @@ func inverseDocumentFrequency(term string, documents []string, separator string)
 
 	return 1.0
 
-}
-
-func (ti *TfIdf) CalculateQueryTermsTfIdfForEachDocument(query string) ([][]float64, error) {
-	queryTerms := strings.Split(strings.ToLower(query), ti.DocumentSeparator)
-	termsTfIdfs := make([][]float64, 0)
-
-	if len(queryTerms) == 1 && queryTerms[0] == "" {
-		return termsTfIdfs, errors.New("Query must have at least one term")
-	}
-
-	for docIdx, docNormTf := range ti.documentsNormTermFrequency {
-		termsTfIdfs = append(termsTfIdfs, make([]float64, 0))
-		for _, term := range queryTerms {
-			tf := 0.0
-			idf := 0.0
-			if v, ok := docNormTf[term]; ok {
-				tf = v
-			}
-			if v, ok := ti.documentsInverseFrequency[term]; ok {
-				idf = v
-			}
-			termsTfIdfs[docIdx] = append(termsTfIdfs[docIdx], tf*idf)
-		}
-	}
-
-	return termsTfIdfs, nil
-}
-
-func CalculateQueryTermsTfIdf(query string, separator string) ([]float64, error) {
-	docs := []string{query}
-	queryTerms := strings.Split(strings.ToLower(query), separator)
-	queryTfIdf := make([]float64, 0)
-
-	if len(queryTerms) == 1 && queryTerms[0] == "" {
-		return queryTfIdf, errors.New("Query must have at least one term")
-	}
-
-	termFrequencies := normalizedTermFrequency(queryTerms)
-
-	for _, term := range queryTerms {
-		tf := termFrequencies[term]
-		idf := inverseDocumentFrequency(term, docs, separator)
-		queryTfIdf = append(queryTfIdf, tf*idf)
-	}
-
-	return queryTfIdf, nil
-}
-
-func (ti *TfIdf) Documents() []string {
-	return ti.documents
-}
-
-func (ti *TfIdf) DocumentsNormTermFrequency() []map[string]float64 {
-	return ti.documentsNormTermFrequency
-}
-
-func (ti *TfIdf) DocumentsInverseFrequency() map[string]float64 {
-	return ti.documentsInverseFrequency
-}
-
-func (ti *TfIdf) DocumentsTerms() []string {
-	return ti.documentsTerms
 }
 
 func New(documents []string, separator string) (*TfIdf, error) {
