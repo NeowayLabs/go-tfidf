@@ -1,0 +1,5 @@
+cmd/go-tfidf/go-tfidf
+.gomodcachedir
+.devimgbuild.logs
+coverage.html
+coverage.out
