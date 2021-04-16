@@ -1,5 +1,5 @@
 # go-tfidf
-[![Build Status](https://travis-ci.org/NeowayLabs/go-tfidf.svg?branch=master)](https://travis-ci.org/NeowayLabs/go-tfidf)
+[![Build Status](https://travis-ci.com/NeowayLabs/go-tfidf.svg?branch=master)](https://travis-ci.com/NeowayLabs/go-tfidf)
 [![Go Report Card](https://goreportcard.com/badge/github.com/NeowayLabs/go-tfidf)](https://goreportcard.com/report/github.com/NeowayLabs/go-tfidf)
 
 This project implements a library that computes Tf Idf for text documents and similarity
